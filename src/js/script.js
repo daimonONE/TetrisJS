@@ -260,11 +260,11 @@ function keyEvent(event) {
     // console.log("Keychar is " + key);
     //alert("Key pressed " + key);
 
-    if (key == LEFT_ARROW || key == RIGHT_ARROW || key == UP_ARROW || key == DOWN_ARROW) {
+    if (key == LEFT_ARROW || key == RIGHT_ARROW || key == DOWN_ARROW) {
         move(key);
         //alert("Key pressed " + key);
     }
-    if(key == SPACE) {
+    if(key == UP_ARROW) {
         rotateFigure(moving);
     }
 }
@@ -291,12 +291,7 @@ function move(key) {
             ++row;
             shouldMove = true;
         }
-    } else if (key == UP_ARROW) {
-        if (moving.getCenterPoint().row > 0) {
-            --row;
-            shouldMove = true;
-        }
-    }
+    } 
     var moved = false;
     if (shouldMove) {
         if(moveFigure(moving, row, column)) {
