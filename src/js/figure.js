@@ -76,6 +76,10 @@ Tetris.Figure.prototype.setStartRow = function (startRow) {
 	this.startRow = startRow;
 };
 
+Tetris.Figure.prototype.getStartRow = function () {
+	return this.startRow;
+};
+
 Tetris.Figure.prototype.setColor = function (color) {
 	this.color = color;
 };
@@ -86,6 +90,10 @@ Tetris.Figure.prototype.getDirection = function () {
 
 Tetris.Figure.prototype.getPoints = function () {
 	return this.points;
+};
+
+Tetris.Figure.prototype.getCenterPoint = function () {
+	return this.centerPoint;
 };
 
 Tetris.Figure.prototype.rotate = function () {
@@ -208,7 +216,7 @@ Tetris.Figure.prototype.getPointByIndex = function (direction, i, j) {
 Tetris.Figure.prototype.getRects = function () {
 	var rects = [];
 	this.points.forEach(function(element) {
-		rects.push(element.rect());
+		rects.push(element.getRect());
 	}, this);
 	return rects;
 }

@@ -18,7 +18,7 @@ Tetris.Point = function (color, width, height, row, column) {
   this.column = column;
 };
 
-Tetris.Point.prototype.rect = function() {
+Tetris.Point.prototype.getRect = function() {
     return {x: this.x, y: this.y, width: this.width, height: this.height};
 }
 

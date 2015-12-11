@@ -22,10 +22,6 @@ var CELL_MARGIN = 5;
 // var color = new Common.Color(200,200,0);
 // var moving = new Tetris.Point(color, cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);
 var moving;
-var movingPoint = {
-    row: 0,
-    column: 0
-};
 var isMoving = false;
 var filledPoints = {};
 
@@ -50,16 +46,74 @@ window.onload = function () {
     });
     
     
-    movingPoint.row = 4;
-    movingPoint.column = 5;
-    moving = addFigure(movingPoint.row,movingPoint.column);
-    var timerId = setInterval(function () {
-        move(DOWN_ARROW);
-    }, 500);   
+    //moving = addFigure(moving.getCenterPoint().row,moving.getCenterPoint().column);
+    moving = spawnFigure();
+    var timerId = setInterval(movingWatch, 500);   
 }
 
-function addFigure(row, column) {    
-    var figureS = new Tetris.FigureLine(cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);        
+function movingWatch() {
+    if(!move(DOWN_ARROW)) {
+        moving.getPoints().forEach(function(element) {
+            filledPoints[element.row+":"+element.column] = element;
+            //movePoint(element, element.row, element.column);    
+        }, this);
+        checkFullLines();
+        moving = spawnFigure();
+    }
+}
+
+function checkFullLines() {
+    var clearedRows = 0;
+    for(var i = rows - 1; i >= 0; --i) {
+        var fullRow = true;
+        for(var j = 0; j < columns; ++j) {
+            if(!(i+":"+j in filledPoints)) {
+                fullRow = false;
+                break;
+            }
+        }
+        if(fullRow) {
+            clearRow(i);//clear;
+            ++clearedRows;
+        }
+    }
+    
+    if(clearedRows) {
+        for(var i = rows - 1; i >= 0; --i) {
+            for(var j = 0; j < columns; ++j) {
+                var key = i+":"+j;
+                if(key in filledPoints) {
+                    var newKey = (i + clearedRows) + ":" + j;
+                    filledPoints[newKey] = filledPoints[key];
+                    clearPoint(filledPoints[newKey]);
+                    movePoint(filledPoints[newKey], i + clearedRows, j);
+                    delete filledPoints[key];
+                }
+            }
+        }
+    }
+}
+
+function clearRow(row) {
+    for(var i = 0; i < columns; ++i) {
+        var key = row+":"+i;
+        if(key in filledPoints) {
+            clearPoint(filledPoints[row+":"+i]);
+            delete filledPoints[key];
+        }
+    }
+}
+
+function spawnFigure() {
+    return addFigure();
+}
+
+function addFigure(row, column) {
+    var figureS = new Tetris.FigureLine(cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);
+    if(!row)
+        row = figureS.getStartRow();
+    if(!column)
+        column = Math.floor(columns/2);
     moveFigure(figureS, row, column);    
     return figureS;   
 }
@@ -135,12 +189,19 @@ function clear(figure) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+function clearPoint(point) {
+    if(point) {
+        var rect = point.getRect();
+        ctx.clearRect(rect.x - ctx.lineWidth, rect.y - ctx.lineWidth, rect.width + ctx.lineWidth*2, rect.height + ctx.lineWidth*2);     
+    }         
+}
+
 function refresh() {
     clear(moving);
     //clear();
     
-    //movePoint(moving, movingPoint.row, movingPoint.column);
-    moveFigure(moving, movingPoint.row, movingPoint.column); 
+    //movePoint(moving, moving.getCenterPoint().row, moving.getCenterPoint().column);
+    moveFigure(moving, moving.getCenterPoint().row, moving.getCenterPoint().column); 
    
     //drawGrid();    
 }
@@ -213,41 +274,44 @@ function move(key) {
         return;
     isMoving = true;    
     var shouldMove = false;
-    var row = movingPoint.row;
-    var column = movingPoint.column;
+    var row = moving.getCenterPoint().row;
+    var column = moving.getCenterPoint().column;
     if (key == RIGHT_ARROW) {
-        if (movingPoint.column < columns - 1) {
+        if (moving.getCenterPoint().column < columns - 1) {
             ++column;
             shouldMove = true;
         }
     } else if (key == LEFT_ARROW) {
-        if (movingPoint.column > 0) {
+        if (moving.getCenterPoint().column > 0) {
             --column;
             shouldMove = true;
         }
     } if (key == DOWN_ARROW) {
-        if (movingPoint.row < rows - 1) {                   
+        if (moving.getCenterPoint().row < rows - 1) {                   
             ++row;
             shouldMove = true;
         }
     } else if (key == UP_ARROW) {
-        if (movingPoint.row > 0) {
+        if (moving.getCenterPoint().row > 0) {
             --row;
             shouldMove = true;
         }
     }
+    var moved = false;
     if (shouldMove) {
         if(moveFigure(moving, row, column)) {
-            movingPoint.row = row;
-            movingPoint.column = column;
+            moving.getCenterPoint().row = row;
+            moving.getCenterPoint().column = column;
+            moved = true;
         }
         // if(!(row+":"+column in filledPoints)) {
-        //     movingPoint.row = row;
-        //     movingPoint.column = column;            
+        //     moving.getCenterPoint().row = row;
+        //     moving.getCenterPoint().column = column;            
         //     refresh();
         // }
     }
     isMoving = false;
+    return moved;
 }
 
 function movePoint(point, row, column) {
@@ -280,35 +344,35 @@ function movePoint(point, row, column) {
 }
 
 function moveFigure(figure, row, column) {
-    figure.getPoints().forEach(function(element) {
-        var key = element.row + ":" + element.column;
-        if(key in filledPoints)
-            delete filledPoints[key];
-    }, this);
+    // figure.getPoints().forEach(function(element) {
+    //     var key = element.row + ":" + element.column;
+    //     if(key in filledPoints)
+    //         delete filledPoints[key];
+    // }, this);
     if(!arePointsAvailable(figure.pointsAfterMove(row,column)))
     {
-        figure.getPoints().forEach(function(element) {
-            filledPoints[element.row+":"+element.column] = true;
-        }, this);
+        // figure.getPoints().forEach(function(element) {
+        //     filledPoints[element.row+":"+element.column] = true;
+        // }, this);
         return false;
     }
         
     clear(figure);        
     // var myPoints = [];
     figure.move(row, column);                   
-    figure.getPoints().forEach(function(element) {
-        filledPoints[element.row+":"+element.column] = true;
-        movePoint(element, element.row, element.column);    
-    }, this);       
+     figure.getPoints().forEach(function(element) {
+    //     filledPoints[element.row+":"+element.column] = true;
+         movePoint(element, element.row, element.column);    
+     }, this);       
     return true; 
 }
 
 function rotateFigure(figure) {
-    figure.getPoints().forEach(function(element) {
-        var key = element.row + ":" + element.column;
-        if(key in filledPoints)
-            delete filledPoints[key];
-    }, this);
+    // figure.getPoints().forEach(function(element) {
+    //     var key = element.row + ":" + element.column;
+    //     if(key in filledPoints)
+    //         delete filledPoints[key];
+    // }, this);
     if(!arePointsAvailable(figure.pointsAfterRotate()))
     {
         figure.getPoints().forEach(function(element) {
@@ -320,9 +384,9 @@ function rotateFigure(figure) {
     clear(figure);        
     // var myPoints = [];
     figure.rotate();                   
-    figure.getPoints().forEach(function(element) {
-        filledPoints[element.row+":"+element.column] = true;
-        movePoint(element, element.row, element.column);    
+     figure.getPoints().forEach(function(element) {
+    //     filledPoints[element.row+":"+element.column] = true;
+         movePoint(element, element.row, element.column);    
     }, this);       
     return true; 
 }
