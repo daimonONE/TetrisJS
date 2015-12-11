@@ -25,7 +25,9 @@ var moving;
 var isMoving = false;
 var filledPoints = {};
 
-
+var TYPE_S = 0;
+var TYPE_LINE = 1;
+var figureTypes = [TYPE_S, TYPE_LINE];
 
 window.onload = function () {
     drawGrid();
@@ -105,17 +107,28 @@ function clearRow(row) {
 }
 
 function spawnFigure() {
-    return addFigure();
+    var type = Common.getRandomInt(0, 2);
+    var FigureConstructor;
+    switch(type) {
+    case TYPE_LINE:
+        FigureConstructor = Tetris.FigureLine;
+        break;
+    case TYPE_S: 
+        FigureConstructor = Tetris.FigureS;
+        break; 
+    }
+    
+    var figure = new FigureConstructor(cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);
+    return addFigure(figure);
 }
 
-function addFigure(row, column) {
-    var figureS = new Tetris.FigureLine(cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);
+function addFigure(figure, row, column) {
     if(!row)
-        row = figureS.getStartRow();
+        row = figure.getStartRow();
     if(!column)
         column = Math.floor(columns/2);
-    moveFigure(figureS, row, column);    
-    return figureS;   
+    moveFigure(figure, row, column);    
+    return figure;   
 }
 
 function arePointsAvailable(points) {
