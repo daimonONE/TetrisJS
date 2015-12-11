@@ -1,0 +1,22 @@
+Javascript Helper:
+
+1) Прототипирование:
+	Пример наследования от String:
+	
+	function Point() {
+	var str = new String("Hello");
+		str.__proto__ = Point.prototype;
+	return str;
+	};
+	
+	Point.prototype = Object.create(String.prototype);
+	Point.prototype.constructor = Point;
+	
+	
+	Point.prototype.test = function() {
+	console.log("Test");
+	}
+	
+	var p = new Tetris.Point();
+	console.log(p instanceof Point);
+	console.log(p instanceof Path2D);
