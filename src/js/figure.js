@@ -73,13 +73,8 @@ Tetris.Figure.prototype.pointsAfterRotate = function () {
 	
 };
 
-
-Tetris.Figure.prototype.setStartRow = function (startRow) {
-	this.startRow = startRow;
-};
-
 Tetris.Figure.prototype.getStartRow = function () {
-	return this.startRow;
+	return this.centers[this.direction].i;
 };
 
 Tetris.Figure.prototype.setColor = function (color) {

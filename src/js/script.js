@@ -27,6 +27,12 @@ var filledPoints = {};
 
 var TYPE_S = 0;
 var TYPE_LINE = 1;
+var TYPE_Z = 2;
+var TYPE_T = 3;
+var TYPE_L = 4;
+var TYPE_J = 5;
+var TYPE_O = 6;
+var TYPE_COUNT = 7;
 //var figureTypes = [TYPE_S, TYPE_LINE];
 //var figureTypes = [TYPE_S, TYPE_S];
 
@@ -121,7 +127,7 @@ function clearRow(row) {
 }
 
 function spawnFigure() {
-    var type = Common.getRandomInt(0, 2);
+    var type = Common.getRandomInt(0, TYPE_COUNT);
     var FigureConstructor;
     switch(type) {
     case TYPE_LINE:
@@ -129,7 +135,22 @@ function spawnFigure() {
         break;
     case TYPE_S: 
         FigureConstructor = Tetris.FigureS;
-        break; 
+        break;
+    case TYPE_Z: 
+        FigureConstructor = Tetris.FigureZ;
+        break;
+    case TYPE_T: 
+        FigureConstructor = Tetris.FigureT;
+        break;
+    case TYPE_L: 
+        FigureConstructor = Tetris.FigureL;
+        break;  
+    case TYPE_J: 
+        FigureConstructor = Tetris.FigureJ;
+        break;
+    case TYPE_O: 
+        FigureConstructor = Tetris.FigureO;
+        break;    
     }
     
     var figure = new FigureConstructor(cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);
@@ -366,16 +387,8 @@ function movePoint(point, row, column) {
 }
 
 function moveFigure(figure, row, column) {
-    // figure.getPoints().forEach(function(element) {
-    //     var key = element.row + ":" + element.column;
-    //     if(key in filledPoints)
-    //         delete filledPoints[key];
-    // }, this);
     if(!arePointsAvailable(figure.pointsAfterMove(row,column)))
     {
-        // figure.getPoints().forEach(function(element) {
-        //     filledPoints[element.row+":"+element.column] = true;
-        // }, this);
         return false;
     }
         
@@ -390,16 +403,8 @@ function moveFigure(figure, row, column) {
 }
 
 function rotateFigure(figure) {
-    // figure.getPoints().forEach(function(element) {
-    //     var key = element.row + ":" + element.column;
-    //     if(key in filledPoints)
-    //         delete filledPoints[key];
-    // }, this);
     if(!arePointsAvailable(figure.pointsAfterRotate()))
     {
-        figure.getPoints().forEach(function(element) {
-            filledPoints[element.row+":"+element.column] = true;
-        }, this);
         return false;
     }
         
