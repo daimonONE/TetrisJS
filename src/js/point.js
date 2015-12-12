@@ -1,3 +1,4 @@
+"use strict";
 var Tetris = Tetris || {};
 
 Tetris.Point = function (color, width, height, row, column) {

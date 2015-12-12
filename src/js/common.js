@@ -1,3 +1,4 @@
+"use strict";
 var Common = Common || {};
 
 Common.Color = function(red,green,blue,alpha) {

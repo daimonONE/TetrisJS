@@ -1,4 +1,5 @@
 /* global Common */
+"use strict";
 var Tetris = Tetris || {};
 
 Tetris.Directions = Tetris.Directions || {};

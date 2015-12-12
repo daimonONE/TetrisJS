@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 var Tetris = Tetris || {};
 
 Tetris.FigureS = function (pointWidth, pointHeight) {
