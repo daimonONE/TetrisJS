@@ -55,7 +55,9 @@ Tetris.Figure.prototype.pointsAfterRotate = function () {
 		row.forEach(function (column, j) {
 			if (i == centerIndexes.i && j == centerIndexes.j) {
 				//skip
-			}
+			} else if(column == Tetris.Figure.POINT_NOT_USED) {
+				
+			}				
 			else {
 				points.push(
 					{
@@ -154,6 +156,8 @@ Tetris.Figure.prototype.pointsAfterMove = function (moveRow, moveColumn) {
 			if (i == this.centers[this.direction].i && j == this.centers[this.direction].j) {
 				continue;								
 			}
+			if(rows[i][j] == Tetris.Figure.POINT_NOT_USED)
+				continue;
 			points.push(
 				{
 					row: i - this.centers[this.direction].i + centerPoint.row,

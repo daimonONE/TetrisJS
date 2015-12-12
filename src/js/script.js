@@ -27,7 +27,8 @@ var filledPoints = {};
 
 var TYPE_S = 0;
 var TYPE_LINE = 1;
-var figureTypes = [TYPE_S, TYPE_LINE];
+//var figureTypes = [TYPE_S, TYPE_LINE];
+//var figureTypes = [TYPE_S, TYPE_S];
 
 window.onload = function () {
     drawGrid();
@@ -77,23 +78,36 @@ function checkFullLines() {
         if(fullRow) {
             clearRow(i);//clear;
             ++clearedRows;
-        }
-    }
-    
-    if(clearedRows) {
-        for(var i = rows - 1; i >= 0; --i) {
-            for(var j = 0; j < columns; ++j) {
-                var key = i+":"+j;
-                if(key in filledPoints) {
-                    var newKey = (i + clearedRows) + ":" + j;
-                    filledPoints[newKey] = filledPoints[key];
-                    clearPoint(filledPoints[newKey]);
-                    movePoint(filledPoints[newKey], i + clearedRows, j);
-                    delete filledPoints[key];
+        } else {
+            if(clearedRows) {
+                for(var j = 0; j < columns; ++j) {                
+                    var key = i+":"+j;
+                    if(key in filledPoints) {   
+                        var newKey = (i + clearedRows) + ":" + j;
+                        filledPoints[newKey] = filledPoints[key];
+                        clearPoint(filledPoints[newKey]);
+                        movePoint(filledPoints[newKey], i + clearedRows, j);
+                        delete filledPoints[key];
+                    }
                 }
             }
         }
     }
+    
+    // if(clearedRows) {
+    //     for(var i = rows - 1; i >= 0; --i) {
+    //         for(var j = 0; j < columns; ++j) {
+    //             var key = i+":"+j;
+    //             if(key in filledPoints) {
+    //                 var newKey = (i + clearedRows) + ":" + j;
+    //                 filledPoints[newKey] = filledPoints[key];
+    //                 clearPoint(filledPoints[newKey]);
+    //                 movePoint(filledPoints[newKey], i + clearedRows, j);
+    //                 delete filledPoints[key];
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 function clearRow(row) {
