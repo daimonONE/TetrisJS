@@ -15,7 +15,11 @@ var UP_ARROW = 38;
 var DOWN_ARROW = 40;
 var SPACE = 32;
 
-var CELL_MARGIN = 5; 
+var CELL_MARGIN = 0.2;
+var cellMarginWidth = cellWidth * CELL_MARGIN;
+var cellMarginHeight = cellHeight * CELL_MARGIN; 
+
+var isResizing = false;
 
 
 
@@ -36,13 +40,14 @@ var TYPE_COUNT = 7;
 //var figureTypes = [TYPE_S, TYPE_LINE];
 //var figureTypes = [TYPE_S, TYPE_S];
 
-window.onload = function () {
-    drawGrid();
+window.onload = function () {       
+    resizeGame();
+
     //fillGrid(10);
     document.body.onkeydown = keyEvent;
 
     document.getElementById("b_up").addEventListener('click', function () {
-        move(UP_ARROW);
+        rotateFigure(moving);
     });
     document.getElementById("b_down").addEventListener('click', function () {
         move(DOWN_ARROW);
@@ -57,10 +62,71 @@ window.onload = function () {
     
     //moving = addFigure(moving.getCenterPoint().row,moving.getCenterPoint().column);
     moving = spawnFigure();
-    var timerId = setInterval(movingWatch, 500);   
+     var timerId = setInterval(movingWatch, 500);   
+}
+
+window.addEventListener('resize', resizeGame, false);
+window.addEventListener('orientationchange', resizeGame, false);
+
+function resizeGame() {   
+    isResizing = true; 
+    clear();
+    var gameArea = document.getElementById('game_area');
+    var widthToHeight = 1 / 2;
+    
+    var newWidth = window.innerWidth;
+    var newHeight = window.innerHeight;
+    
+    var newWidthToHeight = newWidth / newHeight;
+    
+    if (newWidthToHeight > widthToHeight) {
+        // window width is too wide relative to desired game width
+        newWidth = newHeight * widthToHeight;
+        gameArea.style.height = newHeight + 'px';
+        gameArea.style.width = newWidth + 'px';
+    } else { // window height is too high relative to desired game height
+        newHeight = newWidth / widthToHeight;
+        gameArea.style.width = newWidth + 'px';
+        gameArea.style.height = newHeight + 'px';
+    }
+    
+    gameArea.style.marginTop = (-newHeight / 2) + 'px';
+    gameArea.style.marginLeft = (-newWidth / 2) + 'px';
+    
+    gameArea.style.fontSize = (newWidth / 400) + 'em';
+    
+    var gameCanvas = canvas;
+    gameCanvas.width = newWidth;
+    gameCanvas.height = newHeight;
+    
+    
+    cellWidth = canvas.width / columns;
+    cellHeight = canvas.height / rows;
+    drawGrid();
+    
+    if(moving) {
+        moving.resize(cellWidth - cellMarginWidth, cellHeight - cellMarginHeight);
+        //moveFigure(moving, moving.getCenterPoint().row, moving.getCenterPoint().column);
+        moving.move(moving.getCenterPoint().row, moving.getCenterPoint().column);                   
+        moving.getPoints().forEach(function(element) {
+        //     filledPoints[element.row+":"+element.column] = true;
+            movePoint(element, element.row, element.column);    
+        }, this);  
+    }
+    for(var index in filledPoints) { 
+        if (filledPoints.hasOwnProperty(index)) {
+            var point = filledPoints[index];
+            point.width = cellWidth - cellMarginWidth;
+            point.height = cellHeight - cellMarginHeight;
+            movePoint(point, point.row, point.column);                            
+        }
+    }
+    isResizing = false;    
 }
 
 function movingWatch() {
+    if(isResizing)
+        return;
     if(!move(DOWN_ARROW)) {
         moving.getPoints().forEach(function(element) {
             filledPoints[element.row+":"+element.column] = element;
@@ -150,10 +216,13 @@ function spawnFigure() {
         break;
     case TYPE_O: 
         FigureConstructor = Tetris.FigureO;
-        break;    
+        break;  
+    default:  
+        FigureConstructor = Tetris.FigureLine;
+        break;
     }
     
-    var figure = new FigureConstructor(cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);
+    var figure = new FigureConstructor(cellWidth - cellMarginWidth, cellHeight - cellMarginHeight);
     return addFigure(figure);
 }
 
@@ -187,6 +256,7 @@ for (var i = 0; i < rows; i++) {
 }
 
 
+
 function drawGrid() {
 
     ctx.strokeStyle = "rgba(150, 150, 150, 0.5)";
@@ -211,10 +281,9 @@ function drawGrid() {
 
     var row = 0;
     var column = 0;
-    for (var i = 0; i < canvas.height; i += cellHeight) {
-        //gridCells.push([]);
+    for (var i = 0; i < canvas.height && row < rows; i += cellHeight) {
         column = 0;
-        for (var j = 0; j < canvas.width; j += cellWidth) {
+        for (var j = 0; j < canvas.width && column < columns; j += cellWidth) {
             gridCells[row][column] = {                
                 "x": j,
                 "y": i                
@@ -244,16 +313,6 @@ function clearPoint(point) {
     }         
 }
 
-function refresh() {
-    clear(moving);
-    //clear();
-    
-    //movePoint(moving, moving.getCenterPoint().row, moving.getCenterPoint().column);
-    moveFigure(moving, moving.getCenterPoint().row, moving.getCenterPoint().column); 
-   
-    //drawGrid();    
-}
-
 function fillGrid(count) {
     if(count == undefined)
         return;
@@ -268,7 +327,7 @@ function fillGrid(count) {
         var alpha = Common.getRandomInt(0, 11)/10;
         var temp_mc = moving.color.toRGB();
         var temp_color = new Common.Color(red,green,blue,alpha);        
-        var point = new Tetris.Point(temp_color, cellWidth - CELL_MARGIN, cellHeight - CELL_MARGIN);             
+        var point = new Tetris.Point(temp_color, cellWidth - cellMarginWidth, cellHeight - cellMarginHeight);             
         movePoint(point, row, column); 
         Common.assert(temp_mc === moving.color.toRGB());
         
@@ -289,18 +348,6 @@ function applyClick() {
         drawGrid();
     }
 }
-
-function applyCountClick() {
-    var count = document.getElementById("fill_count").value;
-    clear();
-    drawGrid();
-    fillGrid(count);
-    //clear(moving.rect());
-    //moving.setColor(new Common.Color(0,0,0));
-    refresh();
-}
-
-
 
 function keyEvent(event) {
     var key = event.keyCode || event.which;
@@ -347,11 +394,6 @@ function move(key) {
             moving.getCenterPoint().column = column;
             moved = true;
         }
-        // if(!(row+":"+column in filledPoints)) {
-        //     moving.getCenterPoint().row = row;
-        //     moving.getCenterPoint().column = column;            
-        //     refresh();
-        // }
     }
     isMoving = false;
     return moved;
@@ -361,8 +403,8 @@ function movePoint(point, row, column) {
     var gridPoint = gridCells[row][column];
     var x = gridPoint.x;
     var y = gridPoint.y;    
-    x += CELL_MARGIN/2.0;
-    y += CELL_MARGIN/2.0;
+    x += cellMarginWidth/2.0;
+    y += cellMarginHeight/2.0;
     ctx.fillStyle = point.color.toRGB();
     ctx.fillStroke = new Common.Color(0,0,0).toRGB();
     ctx.beginPath();        
@@ -395,7 +437,7 @@ function moveFigure(figure, row, column) {
     clear(figure);        
     // var myPoints = [];
     figure.move(row, column);                   
-     figure.getPoints().forEach(function(element) {
+    figure.getPoints().forEach(function(element) {
     //     filledPoints[element.row+":"+element.column] = true;
          movePoint(element, element.row, element.column);    
      }, this);       

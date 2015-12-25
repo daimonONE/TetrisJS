@@ -181,7 +181,7 @@ Tetris.FigureJ = function (pointWidth, pointHeight) {
 Tetris.FigureJ.prototype = Object.create(Tetris.Figure.prototype);
 Tetris.FigureJ.prototype.constructor = Tetris.FigureJ;
 
-Tetris.FigureJ = function (pointWidth, pointHeight) {
+Tetris.FigureO = function (pointWidth, pointHeight) {
 	Tetris.Figure.call(this, pointWidth, pointHeight);
 	//Tetris.Figure.call(this);
 	
@@ -203,8 +203,8 @@ Tetris.FigureJ = function (pointWidth, pointHeight) {
 	this.generatePoints();
 }
 
-Tetris.FigureJ.prototype = Object.create(Tetris.Figure.prototype);
-Tetris.FigureJ.prototype.constructor = Tetris.FigureJ;
+Tetris.FigureO.prototype = Object.create(Tetris.Figure.prototype);
+Tetris.FigureO.prototype.constructor = Tetris.FigureO;
 
 Tetris.FigureLine = function (pointWidth, pointHeight) {
 	Tetris.Figure.call(this, pointWidth, pointHeight);
