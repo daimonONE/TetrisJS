@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var connect = require('gulp-connect');
 var autopref = require('gulp-autoprefixer');
 var plumber = require('gulp-plumber');
+var concat = require('gulp-concat');
 
 gulp.task('connect', function() {
   connect.server({
@@ -64,4 +65,11 @@ gulp.task('watch', function () {
   gulp.watch([imagesPat], ['images']);  
 });
 
-gulp.task('default', ['connect', 'html', 'images', 'css', 'js', 'watch']);
+ 
+gulp.task('scripts', function() {
+  return gulp.src(jsPat)
+    .pipe(concat('all.js'))
+    .pipe(gulp.dest(jsDest));
+});
+
+gulp.task('default', ['connect', 'html', 'images', 'css', 'js', 'watch', 'scripts']);
