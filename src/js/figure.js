@@ -15,8 +15,8 @@ Tetris.Figure = function (pointWidth, pointHeight) {
 	this.templates = new Array(Tetris.Directions.COUNT);
 	this.centers = new Array(Tetris.Directions.COUNT);
 	this.startRow = 0;
-	//this.direction = Tetris.Directions.LEFT;
-    this.direction = Common.getRandomInt(0,Tetris.Directions.COUNT);
+	this.direction = Tetris.Directions.UP;
+    
 	this.centerPoint = null;
 	this.points = [];
 	this.color = new Common.Color(0, 0, 0);
@@ -28,9 +28,22 @@ Tetris.Figure = function (pointWidth, pointHeight) {
 	for(var i = 0; i < this.templatePoints.length; ++i) {
 		this.templatePoints[i] = {};
 	}
+    
+    this.isDrawn = false;
 	// this.templatePoints.forEach(function(element, i, arr) {
 	// 	arr[i] = new Object();
 	// }, this);		
+}
+
+Tetris.Figure.prototype.setIsDrawn = function(value) {
+    this.isDrawn = value;
+}
+Tetris.Figure.prototype.getIsDrawn = function() {
+    return this.isDrawn;
+}
+
+Tetris.Figure.prototype.setDirection = function(direction) {
+    this.direction = direction;
 }
 
 Tetris.Figure.prototype.resize = function(pointWidth, pointHeight) {

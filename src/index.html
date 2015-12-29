@@ -2,23 +2,35 @@
 <html>
 
 <head>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 
 <body>
-  <div id="game_area">
-    <canvas id="canvas" width="400" height="600">
-        "Not supported"
-    </canvas>
-  </div>  
-  <div id="controls_area">
-    <button id="b_up" class="control_button">Up</button>
-    <button id="b_down" class="control_button">Down</button>
-    <button id="b_left" class="control_button">Left</button>
-    <button id="b_right" class="control_button">Right</button>
-  </div>
-  <!--<div id="settings">
+    <div id="game_area">
+        <canvas id="canvas" width="400" height="600">
+            "Not supported"
+        </canvas>
+        <div id="score_area">
+            <h2>Next:</h2>
+            <canvas id="extra_canvas">
+                "Not supported"
+            </canvas>
+            <p id="points">0</p>
+            <button id="b_up" class="control_button">Up</button><br>
+            <button id="b_down" class="control_button">Down</button><br>
+            <button id="b_left" class="control_button">Left</button><br>
+            <button id="b_right" class="control_button">Right</button>
+        </div>
+    </div>
+    
+    <div id="controls_area">
+        <button id="b_up" class="control_button">Up</button>
+        <button id="b_down" class="control_button">Down</button>
+        <button id="b_left" class="control_button">Left</button>
+        <button id="b_right" class="control_button">Right</button>
+    </div>
+    <!--<div id="settings">
     <p>Canvas width:    
     <input id="canvas_width" type="text" pattern="\d*" value=500></p>
     <p>Canvas height:
@@ -28,13 +40,13 @@
     <p>Fill count:
     <input id="fill_count" type="text" pattern="" value=1></p>
     <button type="submit" onclick=applyCountClick()>Apply</button>    
-  </div>-->  
-  <!--<script src="js/common.js"></script>
+  </div>-->
+    <!--<script src="js/common.js"></script>
   <script src="js/point.js"></script>
   <script src="js/figure.js"></script>
   <script src="js/figures.js"></script>
   <script src="js/script.js"></script>-->
-  <script src="js/all.js"></script>
+    <script src="js/all.js"></script>
 </body>
 
 </html>
