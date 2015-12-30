@@ -15,21 +15,23 @@
             <h2>Next:</h2>
             <canvas id="extra_canvas">
                 "Not supported"
-            </canvas>
-            <p id="points">0</p>
-            <button id="b_up" class="control_button">Up</button><br>
-            <button id="b_down" class="control_button">Down</button><br>
-            <button id="b_left" class="control_button">Left</button><br>
+            </canvas>            
+            <p>Score: <span id="points">0</span></p>
+            <p>Level: <span id="level">1</span></p>
+            
+            <div class="game_buttons">
+                <button id="b_pause" class="game_button">Pause</button><br>
+                <button id="b_restart" class="game_button">Restart</button><br>
+            </div>                        
+        </div>
+        <div class="control_buttons">
+            <button id="b_up" class="control_button">Up</button>
+            <button id="b_down" class="control_button">Down</button>
+            <button id="b_left" class="control_button">Left</button>
             <button id="b_right" class="control_button">Right</button>
         </div>
     </div>
-    
-    <div id="controls_area">
-        <button id="b_up" class="control_button">Up</button>
-        <button id="b_down" class="control_button">Down</button>
-        <button id="b_left" class="control_button">Left</button>
-        <button id="b_right" class="control_button">Right</button>
-    </div>
+   
     <!--<div id="settings">
     <p>Canvas width:    
     <input id="canvas_width" type="text" pattern="\d*" value=500></p>

@@ -1,3 +1,4 @@
+/* global Tetris */
 /* global Common */
 "use strict";
 var CELL_MARGIN = 0.2;
@@ -56,10 +57,16 @@ var TYPE_COUNT = 7;
 var nextFigure;
 var pointsField;
 var pointsCounter;
-window.onload = function () {       
-    resizeGame();
+var isPaused = false;
 
-    //fillGrid(10);
+var intervalTime = 1000; //MS
+var level = 1;
+var levelField;
+var isGameOver = false;
+
+window.onload = function () {       
+
+    resizeGame();
     document.body.onkeydown = keyEvent;
 
     document.getElementById("b_up").addEventListener('click', function () {
@@ -75,21 +82,51 @@ window.onload = function () {
         move(RIGHT_ARROW);
     });
     
-    document.getElementById("controls_area").hidden = true;    
+    pointsField = document.getElementById("points");
+    levelField = document.getElementById("level");   
+    
+    document.getElementById("b_pause").addEventListener('click', function () {
+        isPaused = !isPaused;
+    });
+    
+    document.getElementById("b_restart").addEventListener('click', function () {
+        gameInit();
+    });
+    
+    
+    gameInit();         
+}
+
+function gameInit() {
+    isGameOver = false;    
+    clear();
+    filledPoints = {};
+    drawGrid();
+    drawNFGrid();
     moving = getRandomFigure();
     addFigure(moving);
-    
     nextFigure = getRandomFigure();
     drawNextFigure(nextFigure);
-    var timerId = setInterval(movingWatch, 500);   
     
-    pointsField = document.getElementById("points");
     pointsCounter = 0;
     pointsField.innerHTML = pointsCounter;
+    
+    level = 1;
+    levelField.innerHTML = level;
+    
+    intervalTime = 1000;
+    setTimeout(movingWatch, intervalTime);
+    
 }
 
 window.addEventListener('resize', resizeGame, false);
 window.addEventListener('orientationchange', resizeGame, false);
+
+function addPoints(addValue) {
+    var points = level * addValue * addValue;
+    pointsCounter += points;
+    pointsField.innerHTML = pointsCounter;
+}
 
 function resizeGame() {   
     isResizing = true; 
@@ -145,25 +182,65 @@ function resizeGame() {
             movePoint(ctx, point, point.row, point.column);                            
         }
     }
+    
+    if(isGameOver) {
+        gameOver();
+    }
+    
     isResizing = false;    
 }
 
 function movingWatch() {
-    if(isResizing)
-        return;
-    if(!move(DOWN_ARROW)) {
-        moving.getPoints().forEach(function(element) {
-            filledPoints[element.row+":"+element.column] = element;
-            //movePoint(element, element.row, element.column);    
-        }, this);
-        checkFullLines();
-        moving = nextFigure;
-        moving.setDirection(Common.getRandomInt(0,Tetris.Directions.COUNT));
-        moving.resize(cellWidth - cellMarginWidth, cellHeight - cellMarginHeight);        
-        addFigure(moving);        
-        nextFigure = getRandomFigure();
-        drawNextFigure(nextFigure);  
+    var res = true;
+    if(!isPaused && !isResizing) {        
+        if(!move(DOWN_ARROW)) {
+            moving.getPoints().forEach(function(element) {
+                filledPoints[element.row+":"+element.column] = element;
+                //movePoint(element, element.row, element.column);    
+            }, this);
+            checkFullLines();
+            moving = nextFigure;
+            moving.setDirection(Common.getRandomInt(0,Tetris.Directions.COUNT));
+            moving.resize(cellWidth - cellMarginWidth, cellHeight - cellMarginHeight);        
+            res = addFigure(moving);
+            if(res) {        
+                nextFigure = getRandomFigure();
+                drawNextFigure(nextFigure);  
+                
+                if(checkLevelChange()) {
+                    levelChange();
+                }
+            }
+        }
     }
+    
+    if(res) {
+        setTimeout(movingWatch, intervalTime);
+    } else {
+        gameOver();
+    }           
+}
+
+function gameOver() {
+    // alert("Game Over");
+    moving = null;
+    ctx.textAlign = "center";
+    ctx.fillStyle = new Common.Color(0,0,0).toRGB();
+    ctx.font = "5em serif";
+    ctx.fillText("Game Over", canvas.width/2, canvas.height/2, canvas.width);
+    
+    isGameOver = true;
+}
+
+function checkLevelChange() {    
+    return pointsCounter >= 10*level*level;        
+}
+
+function levelChange() {
+    ++level;
+    intervalTime -= 10 * level * 2; 
+    
+    levelField.innerHTML = level;
 }
 
 function checkFullLines() {
@@ -196,8 +273,7 @@ function checkFullLines() {
     }
     
     if(clearedRows) {
-        pointsCounter += clearedRows;
-        pointsField.innerHTML = pointsCounter;
+        addPoints(clearedRows);
     }
     
 
@@ -261,19 +337,17 @@ function getRandomFigure() {
     return figure;
 }
 
-function spawnFigure() {
-    var figure = getRandomFigure();    
-    return addFigure(figure);
-}
-
 function addFigure(figure, row, column) {
+    var res = false;
     if(!row)
         row = figure.getStartRow();
     if(!column)
         column = Math.floor(columns/2);
-    moveFigure(figure, row, column);
-    figure.setIsDrawn(true);    
-    return figure;   
+    if(moveFigure(figure, row, column)) {
+        figure.setIsDrawn(true);
+        res = true;    
+    } 
+    return res;   
 }
 
 function arePointsAvailable(points) {
@@ -443,7 +517,7 @@ function keyEvent(event) {
 }
 
 function move(key) {
-    if(isMoving)
+    if(moving == null || isMoving)
         return;
     isMoving = true;    
     var shouldMove = false;
