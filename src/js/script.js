@@ -82,6 +82,11 @@ window.onload = function () {
         move(RIGHT_ARROW);
     });
     
+    document.getElementById("b_drop").addEventListener('click', function () {
+        dropFigure();
+    });
+    
+    
     pointsField = document.getElementById("points");
     levelField = document.getElementById("level");   
     
@@ -95,6 +100,14 @@ window.onload = function () {
     
     
     gameInit();         
+}
+
+function dropFigure() {
+    var r = rows - 1;
+    var c = moving.getCenterPoint().column;
+    while(!moveFigure(moving, r, c) || r == 0) {
+        --r;            
+    }
 }
 
 function gameInit() {
@@ -510,9 +523,10 @@ function keyEvent(event) {
     if (key == LEFT_ARROW || key == RIGHT_ARROW || key == DOWN_ARROW) {
         move(key);
         //alert("Key pressed " + key);
-    }
-    if(key == UP_ARROW) {
+    } else if(key == UP_ARROW) {
         rotateFigure(moving);
+    } else if(key == SPACE) {
+        dropFigure();
     }
 }
 
