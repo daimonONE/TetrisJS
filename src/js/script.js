@@ -1,7 +1,7 @@
 /* global Tetris */
 /* global Common */
 "use strict";
-var CELL_MARGIN = 0.2;
+var CELL_MARGIN = 0.18;
 
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
@@ -102,9 +102,16 @@ window.onload = function () {
     gameInit();         
 }
 
-function dropFigure() {
-    var r = rows - 1;
-    var c = moving.getCenterPoint().column;
+function dropFigure() {    
+    var c = moving.getCenterPoint().column;    
+    var r = moving.getCenterPoint().row;
+    for(let i = r; i < rows; ++i) {
+        if(!arePointsAvailable(moving.pointsAfterMove(i,c))) {
+            r = i - 1;
+            break;
+        }        
+    }            
+            
     while(!moveFigure(moving, r, c) || r == 0) {
         --r;            
     }
@@ -143,13 +150,19 @@ function addPoints(addValue) {
 
 function resizeGame() {   
     isResizing = true; 
-    clear();
+            
     var gameArea = document.getElementById('game_area');
     var widthToHeight = 1 / 2;
-    
     var newWidth = window.innerWidth;
     var newHeight = window.innerHeight;
+    if(newWidth < 300) {
+        newWidth = 300; 
+    }
+    if(newHeight < 600) {
+        newHeight = 600;
+    }
     
+    clear();
     var newWidthToHeight = newWidth / newHeight;
     
     if (newWidthToHeight > widthToHeight) {
